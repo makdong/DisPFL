@@ -28,6 +28,10 @@ class CIFAR100_truncated(data.Dataset):
         if cache_data_set == None:
             cifar_dataobj = CIFAR100(self.root, self.train, self.transform, self.target_transform, self.download)
         else:
+            # print(cache_data_set)
+            # print(type(cache_data_set))
+            # print(cache_data_set.data.shape)
+            # exit()
             cifar_dataobj =  cache_data_set
 
             # print("train member of the class: {}".format(self.train))
@@ -36,6 +40,9 @@ class CIFAR100_truncated(data.Dataset):
         target = np.array(cifar_dataobj.targets)
 
         if self.dataidxs is not None:
+            # print(type(data))
+            # print(data.shape)
+            # exit()
             data = data[self.dataidxs]
             target = target[self.dataidxs]
 

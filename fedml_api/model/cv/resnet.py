@@ -35,10 +35,12 @@ class ResNet(nn.Module):
         super(ResNet, self).__init__()
         self.in_planes = 64
 
+        # print(block)
+        # print(num_blocks[0])
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
 
-        self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=2)
+        self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1)
         self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
         self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
@@ -47,6 +49,7 @@ class ResNet(nn.Module):
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1] * (num_blocks - 1)
+        # print(strides)
         layers = []
         for stride in strides:
             layers.append(block(self.in_planes, planes, stride))  
@@ -96,8 +99,13 @@ def customized_resnet18(pretrained: bool = False, class_num=10,progress: bool = 
     res18.layer4[1].bn1 = nn.GroupNorm(num_groups=32, num_channels=512)
     res18.layer4[1].bn2 = nn.GroupNorm(num_groups=32, num_channels=512)
 
-    assert len(dict(res18.named_parameters()).keys()) == len(
-        res18.state_dict().keys()), 'More BN layers are there...'
+    # print(dict(res18.named_parameters()).keys())
+    # print("\n\n\n\n\n")
+    # print(res18.state_dict().keys())
+    # print("\n\n\n\n\n")
+    # print(len(dict(res18.named_parameters()).keys()))
+    # print(len(res18.state_dict().keys()))
+    assert len(dict(res18.named_parameters()).keys()) == len(res18.state_dict().keys()), 'More BN layers are there...'
 
     return res18
 

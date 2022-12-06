@@ -129,6 +129,9 @@ def partition_data( datadir, partition, n_nets, alpha, logger):
         n_data_per_clnt = len(y_train) / n_client
         clnt_data_list = np.random.lognormal(mean=np.log(n_data_per_clnt), sigma=0, size=n_client)
         clnt_data_list = (clnt_data_list / np.sum(clnt_data_list) * len(y_train)).astype(int)
+
+        # print(clnt_data_list)
+
         cls_priors = np.random.dirichlet(alpha=[alpha] * n_cls, size=n_client)
         prior_cumsum = np.cumsum(cls_priors, axis=1)
 
@@ -204,7 +207,14 @@ def partition_data( datadir, partition, n_nets, alpha, logger):
 
     traindata_cls_counts = record_net_data_stats(y_train, net_dataidx_map, logger)
 
-    print(X_train)
+    # print(X_train.shape)
+    # print(y_train.shape)
+    # print(X_test.shape)
+    # print(y_test.shape)
+    # print(len(net_dataidx_map))
+    # print(len(net_dataidx_map[0]))
+    # print(net_dataidx_map[0])
+    # print(len(traindata_cls_counts))
     return X_train, y_train, X_test, y_test, net_dataidx_map, traindata_cls_counts
 
 
@@ -217,6 +227,10 @@ def get_dataloader_CIFAR100(datadir, train_bs, test_bs, dataidxs=None,test_idxs=
     train_ds = CIFAR100_truncated(datadir, dataidxs=dataidxs, train=True, transform=transform_train, download=True,cache_data_set=cache_train_data_set)
     test_ds = CIFAR100_truncated(datadir, dataidxs=test_idxs, train=False, transform=transform_test, download=True,
                       cache_data_set=cache_test_data_set)
+
+    # print(train_ds.data.shape)
+    # print(test_ds.target.shape)
+    print(train_ds)
     train_dl = data.DataLoader(dataset=train_ds, batch_size=train_bs, shuffle=True, drop_last=False)
     test_dl = data.DataLoader(dataset=test_ds, batch_size=test_bs, shuffle=True, drop_last=False)
     return train_dl, test_dl
@@ -256,13 +270,18 @@ def load_partition_data_cifar100( data_dir, partition_method, partition_alpha, c
                 test_dataidxs[client_idx] = np.concatenate(
                     (test_dataidxs[client_idx], idx_test[label][rand_perm[:label_num]]))
         dataidxs = net_dataidx_map[client_idx]
-        train_data_local, test_data_local = get_dataloader_CIFAR100( data_dir, batch_size, batch_size,
-                                                 dataidxs,test_dataidxs[client_idx] ,cache_train_data_set=cache_train_data_set,cache_test_data_set=cache_test_data_set ,logger=logger)
+        train_data_local, test_data_local = get_dataloader_CIFAR100( data_dir, batch_size, batch_size, dataidxs,test_dataidxs[client_idx] ,cache_train_data_set=cache_train_data_set,cache_test_data_set=cache_test_data_set ,logger=logger)
+        
+
+
         local_data_num = len(train_data_local.dataset)
         data_local_num_dict[client_idx] = local_data_num
         logger.info("client_idx = %d, local_sample_number = %d" % (client_idx, local_data_num))
         train_data_local_dict[client_idx] = train_data_local
         test_data_local_dict[client_idx] = test_data_local
+        
+        # print(test_data_local_dict[0])
+
     record_part(y_test, traindata_cls_counts, test_dataidxs, logger)
     return None, None, None, None, \
            data_local_num_dict, train_data_local_dict, test_data_local_dict, traindata_cls_counts

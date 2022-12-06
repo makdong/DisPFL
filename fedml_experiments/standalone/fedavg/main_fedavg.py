@@ -115,6 +115,13 @@ def load_data(args, dataset_name):
             class_num = load_partition_data_tiny(args.data_dir, args.partition_method,
                                                      args.partition_alpha, args.client_num_in_total,
                                                      args.batch_size, logger)
+        elif dataset_name == "officehome":
+            args.data_dir += "officehome"
+            train_data_num, test_data_num, train_data_global, test_data_global, \
+            train_data_local_num_dict, train_data_local_dict, test_data_local_dict, \
+            class_num = load_partition_data_officehome(args.data_dir, args.partition_method,
+                                                args.partition_alpha, args.client_num_in_total,
+                                                    args.batch_size, logger)
     dataset = [train_data_num, test_data_num, train_data_global, test_data_global,
                train_data_local_num_dict, train_data_local_dict, test_data_local_dict, class_num]
     return dataset

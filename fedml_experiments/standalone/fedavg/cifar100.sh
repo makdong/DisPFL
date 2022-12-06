@@ -1,6 +1,6 @@
 #!/bin/bash
 python main_fedavg.py --model 'resnet18' \
---dataset 'cifar100' \
+--dataset 'officehome' \
 --partition_method 'dir' \
 --partition_alpha 0.3 \
 --batch_size 128 \
@@ -10,4 +10,4 @@ python main_fedavg.py --model 'resnet18' \
 --client_num_in_total 100 --frac 0.1 \
 --comm_round 500 \
 --seed 2022 \
---gpu 0
+--gpu 1
