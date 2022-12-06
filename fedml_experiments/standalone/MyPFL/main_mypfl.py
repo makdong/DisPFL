@@ -12,11 +12,11 @@ sys.path.insert(0, os.path.abspath("/home/guest-kdh2/DisPFL"))
 from fedml_api.data_preprocessing.cifar100.data_loader import load_partition_data_cifar100
 from fedml_api.model.cv.vgg import vgg16, vgg11
 from fedml_api.model.cv.cnn_cifar10 import cnn_cifar10, cnn_cifar100
-from fedml_api.standalone.DisPFL.dispfl_api import dispflAPI
+from fedml_api.standalone.MyPFL.mypfl_api import mypflAPI
 from fedml_api.data_preprocessing.cifar10.data_loader import load_partition_data_cifar10
-from fedml_api.data_preprocessing.tiny_imagenet.data_loader import load_partition_data_tiny
+from fedml_api.data_preprocessing.officehome.data_loader import load_partition_data_officehome
 from fedml_api.model.cv.resnet import  customized_resnet18, tiny_resnet18
-from fedml_api.standalone.DisPFL.my_model_trainer import MyModelTrainer
+from fedml_api.standalone.MyPFL.my_model_trainer import MyModelTrainer
 
 def add_args(parser):
     """
@@ -29,10 +29,10 @@ def add_args(parser):
     parser.add_argument('--dataset', type=str, default='cifar10', metavar='N',
                         help='dataset used for training')
 
-    parser.add_argument('--data_dir', type=str, default='/home/guest-kdh2/DisPFL/data/',
+    parser.add_argument('--data_dir', type=str, default='/home/guest-kdh2/MyPFL/data/',
                         help='data directory, please feel free to change the directory to the right place')
 
-    parser.add_argument('--partition_method', type=str, default='dir', metavar='N',
+    parser.add_argument('--partition_method', type=str, default='homo', metavar='N',
                         help="current supporting three types of data partition, one called 'dir' short for Dirichlet"
                              "one called 'n_cls' short for how many classes allocated for each client"
                              "and one called 'my_part' for partitioning all clients into PA shards with default latent Dir=0.3 distribution")
@@ -116,11 +116,11 @@ def load_data(args, dataset_name):
         train_data_local_num_dict, train_data_local_dict, test_data_local_dict, \
         class_num = load_partition_data_cifar100(args.data_dir, args.partition_method,
                                                 args.partition_alpha, args.client_num_in_total, args.batch_size, logger)
-    elif dataset_name == "tiny":
-        args.data_dir += "tiny_imagenet"
+    elif dataset_name == "officehome":
+        args.data_dir += "officehome"
         train_data_num, test_data_num, train_data_global, test_data_global, \
         train_data_local_num_dict, train_data_local_dict, test_data_local_dict, \
-        class_num = load_partition_data_tiny(args.data_dir, args.partition_method,
+        class_num = load_partition_data_officehome(args.data_dir, args.partition_method,
                                              args.partition_alpha, args.client_num_in_total,
                                                  args.batch_size, logger)
 
@@ -160,7 +160,7 @@ def logger_config(log_path, logging_name):
 
 if __name__ == "__main__":
 
-    parser = add_args(argparse.ArgumentParser(description='DisPFL-standalone'))
+    parser = add_args(argparse.ArgumentParser(description='MyPFL-standalone'))
     args = parser.parse_args()
 
     print("torch version{}".format(torch.__version__))
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     data_partition=args.partition_method
     if data_partition!="homo":
         data_partition+=str(args.partition_alpha)
-    args.identity = "DisPFL" + "-" + args.dataset + "-" + data_partition
+    args.identity = "MyPFL" + "-" + args.dataset + "-" + data_partition
     args.identity+="-mdl" + args.model
     args.identity+="-cs"+args.cs
 
@@ -228,5 +228,5 @@ if __name__ == "__main__":
     model = create_model(args, model_name=args.model,class_num=len(dataset[-1][0]))
     model_trainer = custom_model_trainer(args, model, logger)
     logger.info(model)
-    dispflAPI = dispflAPI(dataset, device, args, model_trainer, logger)
-    dispflAPI.train()
+    mypflAPI = mypflAPI(dataset, device, args, model_trainer, logger)
+    mypflAPI.train()

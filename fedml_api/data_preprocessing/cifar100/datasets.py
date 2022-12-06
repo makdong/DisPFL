@@ -35,7 +35,6 @@ class CIFAR100_truncated(data.Dataset):
         data = cifar_dataobj.data
         target = np.array(cifar_dataobj.targets)
 
-
         if self.dataidxs is not None:
             data = data[self.dataidxs]
             target = target[self.dataidxs]

@@ -9,4 +9,5 @@ python main_fedavg.py --model 'resnet18' \
 --epochs 5 \
 --client_num_in_total 100 --frac 0.1 \
 --comm_round 500 \
---seed 2022
+--seed 2022 \
+--gpu 0

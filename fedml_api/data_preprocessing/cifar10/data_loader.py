@@ -120,12 +120,15 @@ def partition_data( datadir, partition, n_nets, alpha, logger):
         n_cls = 10
 
         n_data_per_clnt = len(y_train) / n_client
-        clnt_data_list = np.random.lognormal(mean=np.log(n_data_per_clnt), sigma=0, size=n_client)
-        clnt_data_list = (clnt_data_list / np.sum(clnt_data_list) * len(y_train)).astype(int)
-        cls_priors = np.random.dirichlet(alpha=[alpha] * n_cls, size=n_client)
-        prior_cumsum = np.cumsum(cls_priors, axis=1)
+        clnt_data_list = np.random.lognormal(mean=np.log(n_data_per_clnt), sigma=0, size=n_client) # 100 data, which have 500. as value
+        clnt_data_list = (clnt_data_list / np.sum(clnt_data_list) * len(y_train)).astype(int) # 100 data, which have 499 as value
+        cls_priors = np.random.dirichlet(alpha=[alpha] * n_cls, size=n_client) # 100 * 10 shape
+        prior_cumsum = np.cumsum(cls_priors, axis=1) # 누적 합, axis=1 이면 row끼리 누적 합
+        # print(prior_cumsum)
 
         idx_list = [np.where(y_train == i)[0] for i in range(n_cls)]
+        # print(idx_list.shape)
+        # print("\n")
         cls_amount = [len(idx_list[i]) for i in range(n_cls)]
         net_dataidx_map = {}
         for j in range(n_client):
@@ -189,7 +192,14 @@ def partition_data( datadir, partition, n_nets, alpha, logger):
                 cls_amount[cls_label] -= 1
                 net_dataidx_map[curr_clnt].append(idx_list[cls_label][cls_amount[cls_label]])
                 break
-
+    
+    # net_dataidx_map[client_number] : client_number의 data들을 보여줌.
+    # data : idx_list[class][해당 class에 맞는 data 남은 개수, 4999부터 시작해서 0까지]
+    # idx_list : y_train == i인 array
+    # 여기서 cls_label을 고르는 과정이 dirichlet distribution을 따름. alpha가 작을 수록 data heterogeneity가 심해짐
+    # print(len(net_dataidx_map))
+    # print(len(net_dataidx_map[87]))
+    # print(net_dataidx_map[0])
     traindata_cls_counts = record_net_data_stats(y_train, net_dataidx_map)
     return X_train, y_train, X_test, y_test, net_dataidx_map, traindata_cls_counts
 
@@ -210,18 +220,19 @@ def load_partition_data_cifar10( data_dir, partition_method, partition_alpha, cl
                                                                                              data_dir,
                                                                                              partition_method,
                                                                                              client_number,
-                                                                                             partition_alpha, logger)
+                                                                                             partition_alpha, logger)                                                  
     # get local dataset
     data_local_num_dict = dict()
     train_data_local_dict = dict()
     test_data_local_dict = dict()
     transform_train, transform_test = _data_transforms_cifar10()
+    # get the dataset using CIFAR10, which is transformed well for training.
     cache_train_data_set=CIFAR10(data_dir, train=True, transform=transform_train, download=True)
     cache_test_data_set = CIFAR10(data_dir, train=False, transform=transform_test, download=True)
-    idx_test = [[] for i in range(10)]
+    idx_test = [[] for i in range(10)] # [ [], [], [], [], [], [], [], [], [], [] ]
     # checking
     for label in range(10):
-        idx_test[label] = np.where(y_test == label)[0]
+        idx_test[label] = np.where(y_test == label)[0] # the result of np.where is array. there's only one index, and get that
     test_dataidxs = [[] for i in range(client_number)]
     tmp_tst_num = math.ceil(len(cache_test_data_set) / client_number)
     for client_idx in range(client_number):

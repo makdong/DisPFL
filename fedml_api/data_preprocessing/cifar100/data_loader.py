@@ -56,6 +56,11 @@ def load_cifar100_data(datadir):
     X_train, y_train = cifar100_train_ds.data, cifar100_train_ds.target
     X_test, y_test = cifar100_test_ds.data, cifar100_test_ds.target
 
+    # print(X_train)
+    # print("\n")
+    # print("\n")
+    # print(y_train)
+
     return (X_train, y_train, X_test, y_test)
 
 def record_part(y_test, train_cls_counts,test_dataidxs ,logger):
@@ -128,6 +133,9 @@ def partition_data( datadir, partition, n_nets, alpha, logger):
         prior_cumsum = np.cumsum(cls_priors, axis=1)
 
         idx_list = [np.where(y_train == i)[0] for i in range(n_cls)]
+        # print(len(idx_list))
+        # print(len(idx_list[0]))
+        # print("\n")
         cls_amount = [len(idx_list[i]) for i in range(n_cls)]
         net_dataidx_map = {}
         for j in range(n_client):
@@ -195,6 +203,8 @@ def partition_data( datadir, partition, n_nets, alpha, logger):
                 break
 
     traindata_cls_counts = record_net_data_stats(y_train, net_dataidx_map, logger)
+
+    print(X_train)
     return X_train, y_train, X_test, y_test, net_dataidx_map, traindata_cls_counts
 
 
@@ -232,6 +242,7 @@ def load_partition_data_cifar100( data_dir, partition_method, partition_alpha, c
     # checking
     for label in range(100):
         idx_test[label] = np.where(y_test == label)[0]
+
     test_dataidxs = [[] for i in range(client_number)]
     tmp_tst_num = math.ceil(len(cache_test_data_set) / client_number)
     for client_idx in range(client_number):

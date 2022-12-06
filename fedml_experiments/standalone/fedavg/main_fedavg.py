@@ -7,7 +7,7 @@ import pdb
 import numpy as np
 import torch
 
-sys.path.insert(0, os.path.abspath("/gdata/dairong/DisPFL/"))
+sys.path.insert(0, os.path.abspath("/home/guest-kdh2/DisPFL"))
 from fedml_api.model.cv.vgg import vgg11
 from fedml_api.data_preprocessing.cifar10.data_loader import load_partition_data_cifar10
 from fedml_api.data_preprocessing.cifar100.data_loader import load_partition_data_cifar100
@@ -42,7 +42,7 @@ def add_args(parser):
     parser.add_argument('--momentum', type=float, default=0, metavar='N',
                         help='momentum')
 
-    parser.add_argument('--data_dir', type=str, default='/gdata/dairong/FedSlim/data/',
+    parser.add_argument('--data_dir', type=str, default='/home/guest-kdh2/DisPFL/data/',
                         help='data directory, please feel free to change the directory to the right place')
 
     parser.add_argument('--partition_method', type=str, default='dir', metavar='N',
@@ -74,7 +74,7 @@ def add_args(parser):
                         help='number of workers in a distributed cluster')
 
     parser.add_argument('--frac', type=float, default=0.1, metavar='NN',
-                        help='selection fraction each round')
+                        help='selection fraction each round. client_num_in_total * frac is the number of worker per each round.')
 
     parser.add_argument('--comm_round', type=int, default=500,
                         help='how many round of communications we shoud use')
@@ -179,6 +179,9 @@ if __name__ == "__main__":
 
     # load data
     dataset = load_data(args, args.dataset)
+
+    # print(len(dataset[7]))
+    # print(len(dataset[7][0]))
 
     # create model.
     model = create_model(args, model_name=args.model, class_num= len(dataset[-1][0]), logger = logger)
